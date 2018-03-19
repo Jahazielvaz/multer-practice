@@ -1,0 +1,19 @@
+*{
+  border: 0;
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+
+#img-container{
+  border: 2px solid black;
+  max-width: 700px;
+  min-height: 500px;
+  margin: 40px auto;
+}
+
+form{
+  text-align: center;
+  margin: auto;
+}

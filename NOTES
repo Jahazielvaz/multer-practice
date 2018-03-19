@@ -26,3 +26,99 @@ Commands:
 Options:
   --version  Show version number                                         [boolean]
   --help     Show help                                                   [boolean]
+
+
+MULTER:
+
+BASIC SETUP:
+  const storage = multer.diskStorage({
+    destination: 'some-destination',
+    filename: function(req, file, callback){
+
+    }
+  })
+
+DESTINATION: Indicates where you want to save your files
+
+FILENAME: Indicates how you want your files named. Multer doesn't add extensions to file names, so you have to take care of that on your own. Using crypto, you can generate a random 16 character string and attach the extension using path:
+
+
+CRYPTO SETUP:
+  crypto.pseudoRandomBytes(16, function(err, raw){
+    if(err) return callback(err);
+
+    callback(null, raw.toString('hex') + path.extname(file.originalname));
+  })
+
+  NOTE: I don't understand this part yet. We're going to have to research it further.
+
+EXPRESS MIDDLEWARE SETUP:
+  import bodyParser from 'body-parser';
+  import morgan from 'morgan';
+  import express from 'express';
+  const app = express();
+
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({extended: true}));
+  app.use(morgan('dev'));
+
+  NOTE: This is pretty standard stuff, no need to explain it.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                              MULTER
+NOTE: THIS TUTORIAL IS BASED ON HOW I UNDERSTAND IT, AND I'M NOT USING MUCH OFFICIAL DOCUMENTATION, AS I HAVEN'T FOUND ANYTHING CONCISE ENOUGH YET.
+
+MULTIPLE PARTS: To better understand it, let's divide it out into multiple parts FORM, STORAGE, UPLOAD, and POST ROUTE REQUEST:
+
+//////////////DESCRIPTION OF EACH:
+
+---------------------------------------------------------------------------------
+FORM:
+  SYNTAX:
+  <form action="/" method="POST" id="uploadForm"  enctype="multipart/form-data">
+    <input type="file" name="myFile"><br>
+    <input type="submit" value="Upload File" name="submit">
+  </form>
+
+  ENCTYPE: Specifies how the form-data should be encoded when submitting it to the server. Can only be used if the method is post. In other words, from what I understand, this is how you determine what type of files you're going to be uploading.
+
+    VALUES:
+      APPLICATION/X-WWW-FORM-URLENCODED: Default. All characters are encoded before sent (spaces are converted to "+" symbols, and special characters are converted to ASCII HEX values)
+
+      MULTIPART/FORM-DATA: No characters are encoded. This value is required when you are using forms that have file upload control.
+
+      TEXT/PLAIN: Spaces are converted to "+" symbols, but no special characters are encoded.
+
+      CONCLUSION: You're mainly going to be using multipart/form-data whenever you're dealing with files that are being uploaded.
+
+  FILE INPUT: There's a special input field you must add, when you're uploading a file. This contains 2 vital parts that we're going to go over.
+
+    SYNTAX:
+      <input type="file" name="myFile">
+
+    TYPE="FILE": This is how your form knows that you're uploading a file.
+
+    NAME="MYFILE": This is how you can link your form to the logic in your file upload code. This is how they connect. In other words, this is how the 2 worlds meet.
+---------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        EXTRAS
+  NOTE: I still don't know how this works. Definitely come back to this section and add an explanation.
+
+  SOURCE EXPLANATION(The is the official explanation by this current source): When an image is received by the route, it will be automatically saved by multer to the directory you previously specified. The upload.single call is handled by the multer middleware.
+  You can then acquire the file's name like so
+
+  const host = req.host;
+  const filePath = req.protocol + "://" + host + '/' + req.file.path;
+
+  NOTE: Don't forget to make the project directory static, in order to serve your pictures using express.

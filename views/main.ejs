@@ -3,8 +3,19 @@
   <head>
     <meta charset="utf-8">
     <title>Picture Uploader</title>
+    <link rel="stylesheet" href="main.css">
   </head>
   <body>
+    <section id="img-upload-section">
+      <div id="img-container">
 
+      </div>
+
+      <form action="/" method="POST" id="uploadForm" enctype="multipart/form-data">
+        <input type="file" name="myFile"><br>
+        <input type="submit" value="Upload File" name="submit">
+      </form>
+
+    </section>
   </body>
 </html>
