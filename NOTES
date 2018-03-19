@@ -99,11 +99,97 @@ FORM:
     TYPE="FILE": This is how your form knows that you're uploading a file.
 
     NAME="MYFILE": This is how you can link your form to the logic in your file upload code. This is how they connect. In other words, this is how the 2 worlds meet.
+
+
 ---------------------------------------------------------------------------------
+STORAGE: I believe this is how you tell the system where to store the file, and you can also give it errors, if the file is not uploaded succesfully. This is also where you can give it some constraints, such as the type of files you accept. This is also where you name the file.
+
+  SYNTAX:
+    const storage = multer.diskStorage({
+      destination: './statics/uploads/images',
+      filename: function(req, file, callback){
+        if(!file.originalname.match(/\.(jpeg|png|jpg|wav)$/)){
+          let err = new Error();
+          err.code = 'filetype';
+          return callback(err);
+        } else {
+          callback(null, file.originalname + '_' + Date.now());
+        }
+      }
+      });
+
+    DESTINATION: This is the path for where the uploaded file will be stored. I guess for storing it in aws, we need the multer s3.
+
+    FILENAME:
+      REQ:
+      FILE:
+      CALLBACK: From what I can tell, callback has 2 parameters: The error if any, and the file name (Here you can also add the date for it.)
+
+        FILE.ORIGINALNAME: This built in value makes it so that the name of the file is what the user actually named the file.
+
+        DATE.NOW(): This function stamps the date the file was uploaded, on the the name of the file.
+
+      ERR.CODE: Multer has it's own error codes. From what I understand, the way it works, in this section you set the label for it, and in the following sections you set the value for it.
 
 
+---------------------------------------------------------------------------------
+UPLOAD: From what I understand, this section is where you specify more details about the file as it's being uploaded. You set this variable equal to the multer function, and within its parameter section, you have an object, in which you can make the desired specifications
+
+  SYNTAX:
+    const upload = multer({
+      storage: storage,
+      limits: {fileSize: 1000000}
+    }).single('myFile');
+
+  STORAGE: STORAGE:  I'm not super sure as to what this does, but I think it's mandatory, and I think the first "storage" you're setting the key, where as the value comes from the variable you defined above.
+
+  LIMITS: I believe these are optional, and there's a variety of them that you can choose from, fileSize being one of them.
+
+  .SINGLE('myFile'): I believe the single part is you specifying that you only want to upload one at a time. I think the myFile, inside of its method section, has to be the same as the name specified in the name section of  the input of type file.
 
 
+---------------------------------------------------------------------------------
+POST ROUTE REQUEST: I included this title, becuase this whole thing apparently only applies to the post request, and not the get request. I'm only going to talk about the stuff that we're not familiar with, and not how a regular post request works.
+
+  SYNTAX:
+    app.post('/', function(req, res){
+      upload(req, res, function(err){
+        if(err){
+          if(err.code === 'LIMIT_FILE_SIZE'){
+            res.json({success: false, message: 'File size is too large. Max limit is 10mb'});
+          } else if(err.code === 'filetype'){
+             res.json({success: false, message: 'No file type is invalid. Must be one of the following options jpeg, png, jpg, or wav'});
+          } else {
+            console.log(err);
+            res.json({success: false, message: 'File could not be uploaded'});
+          };
+        } else{
+          if(!req.file){
+            res.json({ success: false, message: 'No file selected'});
+          } else {
+             res.json({ success: true, message: 'File was uploaded successfully!'});
+          }
+        }
+      })
+    })
+
+    COMMENTS ON THE ABOVE REQUEST: This looks so long, because we have multiple if and else statements. but following are the main differences from a normal post request.
+
+  UPLOAD: Notice that this upload is the variable we've defined above. Also notice the stuff that is going inside this section is everything relevant to the result we get from the upload.
+
+  RES.JSON: I don't know if the response always has to be sent in json format, but I have a feeling it doesn't.
+
+  ({SUCCESS: BOOLEAN}): Notice how inside of the response, you always have to state whether the operation was successful or not.
+
+  MESSAGE: I don't know if there are other key value pair options besides the success and message ones, but those seem to be the 2 standard ones.
+
+  REQ.FILE: I believe this is where the file is stored, in order for us to be able to use these images or files, in different parts of our site.
+
+
+  ---------------------------------------------------------------------------------
+  THINGS WE'RE STILL MISSING
+  -Knowing how to use the uploaded files throughout our app.
+  -Knowing how to use multer s3
 
 
 
